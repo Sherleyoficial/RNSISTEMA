@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RNM — Reprogramação Neuro-Motora</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f7f5f2;
+  --surface:#ffffff;
+  --surface2:#f0ede8;
+  --border:#e8e3dc;
+  --border2:#d4cdc4;
+  --text:#1a1814;
+  --text2:#6b6560;
+  --text3:#a09890;
+  --accent:#2d6a4f;
+  --accent-light:#e8f4ef;
+  --accent2:#1b4332;
+  --gold:#b5893a;
+  --gold-light:#fdf3e3;
+  --n1:#2d6a4f;
+  --n1bg:#e8f4ef;
+  --n1b:#b7deca;
+  --n2:#1a5276;
+  --n2bg:#eaf2fb;
+  --n2b:#aed6f1;
+  --n3:#6c3483;
+  --n3bg:#f5eef8;
+  --n3b:#d2b4de;
+  --warn:#b7770d;
+  --warnbg:#fef9e7;
+  --danger:#922b21;
+  --dangerbg:#fdedec;
+  --radius:10px;
+  --radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;}
+
+/* LAYOUT DESKTOP */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform 0.25s ease;}
+.main{flex:1;margin-left:230px;min-height:100vh;}
+
+/* TOPBAR MOBILE */
+.topbar{display:none;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.topbar-brand{display:flex;align-items:center;gap:8px;}
+.hamburger{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;color:var(--text2);}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:90;}
+.overlay.open{display:block;}
+
+/* SIDEBAR CONTENT */
+.brand{padding:24px 20px 16px;border-bottom:1px solid var(--border);}
+.brand-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.brand-icon{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:13px;color:#fff;font-weight:600;letter-spacing:0.5px;}
+.brand-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);letter-spacing:0.01em;}
+.brand-sub{font-size:11px;color:var(--text3);letter-spacing:0.04em;}
+
+.nav{padding:12px 10px;flex:1;overflow-y:auto;}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:var(--text3);padding:0 10px;margin:14px 0 5px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.12s;border:none;background:none;width:100%;text-align:left;font-family:'Outfit',sans-serif;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:500;}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5;flex-shrink:0;}
+.nav-item.active .nav-dot{opacity:1;}
+
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border);}
+.studio-tag{font-size:10px;color:var(--text3);letter-spacing:0.04em;}
+.studio-name{font-size:12px;color:var(--text2);margin-top:1px;font-weight:500;}
+
+/* PAGE */
+.page-header{padding:28px 32px 20px;background:var(--surface);border-bottom:1px solid var(--border);}
+.page-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);}
+.page-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.content{padding:24px 32px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:10px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:14px;}
+
+/* GRIDS */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px;}
+
+/* METRICS */
+.metric{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.metric-label{font-size:11px;color:var(--text3);letter-spacing:0.05em;margin-bottom:5px;}
+.metric-value{font-family:'Playfair Display',serif;font-size:30px;color:var(--text);line-height:1;}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.badge-n1{background:var(--n1bg);color:var(--n1);border:1px solid var(--n1b);}
+.badge-n2{background:var(--n2bg);color:var(--n2);border:1px solid var(--n2b);}
+.badge-n3{background:var(--n3bg);color:var(--n3);border:1px solid var(--n3b);}
+.badge-pend{background:var(--warnbg);color:var(--warn);border:1px solid #f0d090;}
+.badge-ok{background:#eafaf1;color:#1e8449;border:1px solid #a9dfbf;}
+.badge-warn{background:var(--warnbg);color:var(--warn);border:1px solid #f0d090;}
+.badge-no{background:var(--dangerbg);color:var(--danger);border:1px solid #f1948a;}
+
+/* FORMS */
+.form-row{margin-bottom:13px;}
+.form-label{font-size:11px;color:var(--text2);letter-spacing:0.05em;display:block;margin-bottom:5px;font-weight:500;}
+input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border 0.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff;}
+textarea{resize:vertical;min-height:60px;}
+
+/* BUTTONS */
+.btn{padding:9px 18px;font-size:13px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text2);font-family:'Outfit',sans-serif;font-weight:500;transition:all 0.12s;}
+.btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2);}
+.btn-green{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-green:hover{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-full{width:100%;margin-top:4px;}
+
+/* TABS */
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ALUNOS */
+.aluno-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
+.aluno-row:last-child{border-bottom:none;}
+.aluno-nome{font-size:14px;color:var(--text);font-weight:500;}
+.aluno-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+
+/* PRESCRIÇÃO */
+.bloco-card{border-left:3px solid;padding:14px 16px;border-radius:0 var(--radius) var(--radius) 0;background:var(--surface2);margin-bottom:10px;}
+.bloco-n1{border-color:var(--n1);}
+.bloco-n2{border-color:var(--n2);}
+.bloco-n3{border-color:var(--n3);}
+.bloco-header{font-size:10px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;font-weight:600;}
+.ex-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.ex-row:last-child{border-bottom:none;}
+.ex-nome{font-size:13px;color:var(--text);font-weight:500;}
+.ex-meta{font-size:11px;color:var(--text3);margin-top:1px;}
+.ex-link{font-size:11px;color:var(--accent);text-decoration:none;white-space:nowrap;font-weight:500;}
+.ex-link:hover{color:var(--accent2);text-decoration:underline;}
+
+/* CHECKLIST */
+.check-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.check-row:last-child{border-bottom:none;}
+.check-text{flex:1;font-size:13px;color:var(--text2);}
+.check-btns{display:flex;gap:4px;}
+.check-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);font-size:11px;cursor:pointer;background:var(--surface2);color:var(--text3);transition:all 0.12s;display:flex;align-items:center;justify-content:center;font-weight:600;}
+.check-btn:hover{border-color:var(--border2);}
+.check-btn.s-ok{background:#eafaf1;border-color:#a9dfbf;color:#1e8449;}
+.check-btn.s-warn{background:var(--warnbg);border-color:#f0d090;color:var(--warn);}
+.check-btn.s-no{background:var(--dangerbg);border-color:#f1948a;color:var(--danger);}
+
+/* RESULTADO */
+.result-box{text-align:center;padding:24px;border-radius:var(--radius-lg);margin-top:16px;border:1px solid;}
+.result-box.rn1{background:var(--n1bg);border-color:var(--n1b);}
+.result-box.rn2{background:var(--n2bg);border-color:var(--n2b);}
+.result-box.rn3{background:var(--n3bg);border-color:var(--n3b);}
+.result-nivel{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+.result-desc{font-size:13px;color:var(--text2);}
+.result-stats{font-size:11px;color:var(--text3);margin-top:8px;}
+
+/* BIBLIOTECA */
+.bib-bloco{margin-bottom:18px;}
+.bib-bloco-title{font-size:10px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);font-weight:600;}
+
+/* QUICK */
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.quick-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;text-align:left;transition:all 0.12s;font-family:'Outfit',sans-serif;}
+.quick-btn:hover{background:#fff;border-color:var(--border2);box-shadow:var(--shadow-md);}
+.quick-icon{font-size:20px;margin-bottom:8px;}
+.quick-label{font-size:13px;color:var(--text);font-weight:500;}
+.quick-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px;border:1px solid;}
+.alert-warn{background:var(--warnbg);color:var(--warn);border-color:#f0d090;}
+.alert-danger{background:var(--dangerbg);color:var(--danger);border-color:#f1948a;}
+
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px;}
+
+/* NIVEL CARDS */
+.nivel-row{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);}
+.nivel-row+.nivel-row{margin-top:8px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);box-shadow:var(--shadow-md);}
+  .main{margin-left:0;}
+  .topbar{display:flex;}
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+  .quick-grid{grid-template-columns:1fr;}
+  .content{padding:16px;}
+  .page-header{padding:20px 16px 14px;}
+  .card{padding:16px;}
+  .check-text{font-size:12px;}
+}
+@media(max-width:480px){
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .metric-value{font-size:24px;}
+}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="shell">
+
+<div class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-row">
+      <div class="brand-icon">RNM</div>
+      <div>
+        <div class="brand-name">RNM</div>
+      </div>
+    </div>
+    <div class="brand-sub">Reprogramação Neuro-Motora</div>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" onclick="showTab('visao-geral',this)"><span class="nav-dot"></span>Visão geral</button>
+    <button class="nav-item" onclick="showTab('alunos',this)"><span class="nav-dot"></span>Alunos</button>
+    <div class="nav-section">Protocolo</div>
+    <button class="nav-item" onclick="showTab('avaliacao',this)"><span class="nav-dot"></span>Avaliação</button>
+    <button class="nav-item" onclick="showTab('prescricao',this)"><span class="nav-dot"></span>Prescrição</button>
+    <div class="nav-section">Referência</div>
+    <button class="nav-item" onclick="showTab('biblioteca',this)"><span class="nav-dot"></span>Biblioteca RNM</button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="studio-tag">Powered by</div>
+    <div class="studio-name">Studio Fit Personal</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon" style="width:30px;height:30px;font-size:11px;">RNM</div>
+      <span style="font-family:'Playfair Display',serif;font-size:15px;">RNM</span>
+    </div>
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  </div>
+
+  <!-- VISÃO GERAL -->
+  <div id="visao-geral" class="tab-content active">
+    <div class="page-header">
+      <div class="page-title">Visão geral</div>
+      <div class="page-sub">Sistema de Reprogramação Neuro-Motora — Studio Fit Personal</div>
+    </div>
+    <div class="content">
+      <div class="grid-4">
+        <div class="metric"><div class="metric-label">Total de alunos</div><div class="metric-value" id="m-total">0</div><div class="metric-sub">cadastrados</div></div>
+        <div class="metric"><div class="metric-label">Nível 1</div><div class="metric-value" id="m-n1" style="color:var(--n1)">0</div><div class="metric-sub">Reconexão</div></div>
+        <div class="metric"><div class="metric-label">Nível 2</div><div class="metric-value" id="m-n2" style="color:var(--n2)">0</div><div class="metric-sub">Integração</div></div>
+        <div class="metric"><div class="metric-label">Nível 3</div><div class="metric-value" id="m-n3" style="color:var(--n3)">0</div><div class="metric-sub">Soberania</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Acesso rápido</div>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="navTo('alunos')"><div class="quick-icon">👤</div><div class="quick-label">Cadastrar aluno</div><div class="quick-sub">Novo aluno no sistema</div></button>
+          <button class="quick-btn" onclick="navTo('avaliacao')"><div class="quick-icon">📋</div><div class="quick-label">Iniciar avaliação</div><div class="quick-sub">Checklist de prontidão</div></button>
+          <button class="quick-btn" onclick="navTo('prescricao')"><div class="quick-icon">🏃</div><div class="quick-label">Gerar prescrição</div><div class="quick-sub">Treino por nível RNM</div></button>
+          <button class="quick-btn" onclick="navTo('biblioteca')"><div class="quick-icon">📚</div><div class="quick-label">Biblioteca</div><div class="quick-sub">Exercícios com vídeos</div></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Os 3 Níveis RNM</div>
+        <div class="nivel-row"><span class="badge badge-n1" style="min-width:32px;justify-content:center;">N1</span><div><div style="font-size:13px;font-weight:500;">Reconexão</div><div style="font-size:12px;color:var(--text3);margin-top:1px;">Reset articular, despertar sensorial, padrões de base com apoio.</div></div></div>
+        <div class="nivel-row"><span class="badge badge-n2" style="min-width:32px;justify-content:center;">N2</span><div><div style="font-size:13px;font-weight:500;">Integração</div><div style="font-size:12px;color:var(--text3);margin-top:1px;">Coordenação de cadeias cruzadas, fluidez e controle de centro.</div></div></div>
+        <div class="nivel-row"><span class="badge badge-n3" style="min-width:32px;justify-content:center;">N3</span><div><div style="font-size:13px;font-weight:500;">Soberania</div><div style="font-size:12px;color:var(--text3);margin-top:1px;">Reatividade, potência e controle em ambientes de alto distúrbio.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALUNOS -->
+  <div id="alunos" class="tab-content">
+    <div class="page-header"><div class="page-title">Alunos</div><div class="page-sub">Cadastro e gestão</div></div>
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Novo aluno</div>
+        <div class="grid-2">
+          <div class="form-row"><label class="form-label">Nome completo</label><input type="text" id="inp-nome" placeholder="Ex: Carlos Mendes"/></div>
+          <div class="form-row"><label class="form-label">Idade</label><input type="number" id="inp-idade" placeholder="54" min="18" max="100"/></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-row"><label class="form-label">Modalidade</label><select id="inp-modal"><option value="presencial">Presencial</option><option value="remoto">Remoto</option><option value="ambos">Presencial + Remoto</option></select></div>
+          <div class="form-row"><label class="form-label">Nível inicial</label><select id="inp-nivel"><option value="pend">A avaliar</option><option value="1">Nível 1 — Reconexão</option><option value="2">Nível 2 — Integração</option><option value="3">Nível 3 — Soberania</option></select></div>
+        </div>
+        <div class="form-row"><label class="form-label">Queixa principal / observações</label><textarea id="inp-obs" placeholder="Ex: dor lombar crônica, histórico de cirurgia no joelho..."></textarea></div>
+        <div class="form-row"><label class="form-label">Bandeiras vermelhas</label><input type="text" id="inp-band" placeholder="Ex: osteoporose, vertigem, medicação para pressão..."/></div>
+        <button class="btn btn-green btn-full" onclick="cadastrar()">Salvar aluno</button>
+      </div>
+      <div class="card"><div class="card-title">Alunos cadastrados</div><div id="lista-alunos"><div class="empty">Nenhum aluno cadastrado ainda.</div></div></div>
+    </div>
+  </div>
+
+  <!-- AVALIAÇÃO -->
+  <div id="avaliacao" class="tab-content">
+    <div class="page-header"><div class="page-title">Avaliação</div><div class="page-sub">Checklist de Prontidão Neuro-Motora</div></div>
+    <div class="content">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="form-row" style="margin:0;"><label class="form-label">Selecionar aluno</label><select id="sel-aval" onchange="onSelAval()"><option value="">— selecionar —</option></select></div>
+        <div id="aval-info" style="display:none;margin-top:10px;font-size:12px;color:var(--text3);"></div>
+      </div>
+      <div class="card"><div class="card-title">Bloco A — Mobilidade Articular</div><div id="check-a"></div></div>
+      <div class="card"><div class="card-title">Bloco B — Controle Motor</div><div id="check-b"></div></div>
+      <div class="card"><div class="card-title">Bloco C — Reatividade e Estabilidade</div><div id="check-c"></div></div>
+      <button class="btn btn-green btn-full" onclick="calcNivel()">Calcular nível RNM</button>
+      <div id="aval-resultado"></div>
+    </div>
+  </div>
+
+  <!-- PRESCRIÇÃO -->
+  <div id="prescricao" class="tab-content">
+    <div class="page-header"><div class="page-title">Prescrição</div><div class="page-sub">Treino por nível — 4 blocos RNM</div></div>
+    <div class="content">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="form-row" style="margin:0;"><label class="form-label">Selecionar aluno</label><select id="sel-presc" onchange="gerarPresc()"><option value="">— selecionar —</option></select></div>
+      </div>
+      <div id="presc-output"><div class="empty">Selecione um aluno para gerar a prescrição.</div></div>
+    </div>
+  </div>
+
+  <!-- BIBLIOTECA -->
+  <div id="biblioteca" class="tab-content">
+    <div class="page-header"><div class="page-title">Biblioteca RNM</div><div class="page-sub">Exercícios por nível com vídeos de referência</div></div>
+    <div class="content">
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm" onclick="filtBib('all')">Todos</button>
+          <button class="btn btn-sm" onclick="filtBib('1')" style="color:var(--n1);border-color:var(--n1b);">N1 — Reconexão</button>
+          <button class="btn btn-sm" onclick="filtBib('2')" style="color:var(--n2);border-color:var(--n2b);">N2 — Integração</button>
+          <button class="btn btn-sm" onclick="filtBib('3')" style="color:var(--n3);border-color:var(--n3b);">N3 — Soberania</button>
+        </div>
+      </div>
+      <div class="card"><div id="bib-output"></div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+let alunos=[];
+const statusMap={};
+
+const checkA=[
+  {id:'a1',txt:'Deep Squat — calcanhar no chão, 30s sem apoio'},
+  {id:'a2',txt:'Dorsiflexão ativa — joelho ultrapassa a ponta do pé (≥5cm)'},
+  {id:'a3',txt:'90/90 Hip Flow — rotação bilateral sem apoio de mão'},
+  {id:'a4',txt:'Frog Stretch — oscilação ativa sem colapso de arco plantar'},
+];
+const checkB=[
+  {id:'b1',txt:'Cat-Cow segmentado — vértebra por vértebra, sem bloco rígido'},
+  {id:'b2',txt:'Beast Hold — 20 segundos sem oscilação de quadril'},
+  {id:'b3',txt:'Transição do solo — sentar e levantar (Teste SLS)'},
+  {id:'b4',txt:'Shin Box to Lunge — transição fluida sem impulso de mão'},
+];
+const checkC=[
+  {id:'c1',txt:'Equilíbrio unipodal estático — 10s cada pé, olhos abertos'},
+  {id:'c2',txt:'Equilíbrio unipodal dinâmico — 5 círculos no ar'},
+  {id:'c3',txt:'Perturbação de centro — resposta reflexa sem mover os pés'},
+];
+
+function buildCheck(items,cid){
+  document.getElementById(cid).innerHTML=items.map(i=>`
+    <div class="check-row">
+      <span class="check-text">${i.txt}</span>
+      <div class="check-btns">
+        <button class="check-btn" id="ok-${i.id}" onclick="setS('${i.id}','ok')" title="Passa">✓</button>
+        <button class="check-btn" id="wn-${i.id}" onclick="setS('${i.id}','warn')" title="Compensa">~</button>
+        <button class="check-btn" id="no-${i.id}" onclick="setS('${i.id}','no')" title="Não executa">✗</button>
+      </div>
+    </div>`).join('');
+}
+buildCheck(checkA,'check-a');
+buildCheck(checkB,'check-b');
+buildCheck(checkC,'check-c');
+
+function setS(id,val){
+  statusMap[id]=val;
+  const map={ok:'ok',wn:'warn',no:'no'};
+  ['ok','wn','no'].forEach(p=>{
+    const b=document.getElementById(p+'-'+id);
+    if(b)b.className='check-btn'+(map[p]===val?' s-'+map[p]:'');
+  });
+}
+
+function calcNivel(){
+  const all=[...checkA,...checkB,...checkC];
+  let ok=0,warn=0,no=0,sem=0;
+  all.forEach(i=>{const s=statusMap[i.id];if(s==='ok')ok++;else if(s==='warn')warn++;else if(s==='no')no++;else sem++;});
+  const pct=ok/all.length;
+  let nivel,cls,desc;
+  if(pct>=0.85&&no===0){nivel='3';cls='rn3';desc='Foco em reatividade, potência e controle em ambientes de alto distúrbio.';}
+  else if(pct>=0.55&&no<=2){nivel='2';cls='rn2';desc='Foco em coordenação de cadeias cruzadas e fluidez de movimento.';}
+  else{nivel='1';cls='rn1';desc='Foco em reset articular, despertar sensorial e padrões de base com apoio.';}
+  const labels={1:'Nível 1 — Reconexão',2:'Nível 2 — Integração',3:'Nível 3 — Soberania'};
+  const sel=document.getElementById('sel-aval').value;
+  if(sel){const idx=alunos.findIndex(a=>a.nome===sel);if(idx>=0){alunos[idx].nivel=nivel;atualizarSelects();atualizarMetricas();}}
+  document.getElementById('aval-resultado').innerHTML=`
+    <div class="result-box ${cls}">
+      <div class="result-nivel">${labels[parseInt(nivel)]}</div>
+      <div class="result-desc">${desc}</div>
+      <div class="result-stats">Passa: ${ok} · Compensa: ${warn} · Não executa: ${no} · Sem resposta: ${sem}</div>
+    </div>`;
+}
+
+const presc={
+  '1':{label:'Nível 1 — Reconexão',cor:'bloco-n1',blocos:[
+    {nome:'Aquecimento Articular',exs:[
+      {n:'90/90 Hip Flow',t:'2 min',l:'https://www.youtube.com/results?search_query=90+90+hip+flow+drill'},
+      {n:'Cat-Cow segmentado',t:'1 min',l:'https://www.youtube.com/results?search_query=cat+cow+spinal+segmentation'},
+      {n:'Ankle Drive — mobilidade de tornozelo',t:'1 min',l:'https://www.youtube.com/results?search_query=ankle+dorsiflexion+mobility+drill'},
+    ]},
+    {nome:'Domínio Motor',exs:[
+      {n:'Beast Hold estático (apoio de joelho)',t:'3×20s',l:'https://www.youtube.com/results?search_query=animal+flow+static+beast+beginner'},
+      {n:'Frog Stretch ativo',t:'2×8 oscilações',l:'https://www.youtube.com/results?search_query=frog+stretch+active+mobility'},
+      {n:'Transição sentado → pé com 1 apoio',t:'3×5',l:'https://www.youtube.com/results?search_query=GMB+fitness+how+to+get+off+the+floor'},
+    ]},
+    {nome:'Estímulo Neural Rápido',exs:[
+      {n:'Flashes de agilidade — toques no solo',t:'3×15s',l:'https://www.youtube.com/results?search_query=agility+floor+taps+beginner'},
+      {n:'Marcha com intenção — joelho alto',t:'2×20s',l:'https://www.youtube.com/results?search_query=high+knee+march+coordination'},
+    ]},
+    {nome:'Instabilidade Controlada',exs:[
+      {n:'Equilíbrio unipodal estático',t:'3×10s cada pé',l:'https://www.youtube.com/results?search_query=single+leg+balance+beginner+seniors'},
+      {n:'Beast Shoulder Tap (apoio de joelhos)',t:'3×6 toques',l:'https://www.youtube.com/results?search_query=bear+crawl+shoulder+tap+beginner'},
+    ]},
+  ]},
+  '2':{label:'Nível 2 — Integração',cor:'bloco-n2',blocos:[
+    {nome:'Aquecimento Articular',exs:[
+      {n:'90/90 com transição lateral',t:'2 min',l:'https://www.youtube.com/results?search_query=90+90+hip+flow+transition'},
+      {n:'Deep Squat ativo com rotação torácica',t:'1 min',l:'https://www.youtube.com/results?search_query=ido+portal+squat+clinic'},
+      {n:'Frog Stretch com oscilação',t:'1 min',l:'https://www.youtube.com/results?search_query=frog+stretch+active+mobility'},
+    ]},
+    {nome:'Domínio Motor',exs:[
+      {n:'Shin Box to Lunge',t:'3×5 cada lado',l:'https://www.youtube.com/results?search_query=shin+box+to+lunge+transition'},
+      {n:'Bear Crawl — 4 passos frente/trás',t:'3×10s',l:'https://www.youtube.com/results?search_query=bear+crawl+movement+fundamentals'},
+      {n:'SLS sem apoio — sentar/levantar',t:'3×5',l:'https://www.youtube.com/results?search_query=sit+to+stand+without+hands'},
+    ]},
+    {nome:'Estímulo Neural Rápido',exs:[
+      {n:'Underswitch lento — 4 apoios → ponte',t:'3×20s',l:'https://www.youtube.com/results?search_query=animal+flow+underswitch+tutorial'},
+      {n:'Shadow Movement — reação a comandos',t:'3×15s',l:'https://www.youtube.com/results?search_query=shadow+movement+reaction+drill'},
+    ]},
+    {nome:'Instabilidade Controlada',exs:[
+      {n:'Equilíbrio unipodal dinâmico',t:'3×5 círculos cada',l:'https://www.youtube.com/results?search_query=single+leg+dynamic+balance+drill'},
+      {n:'Ponte Inversa com distúrbio',t:'3×30s',l:'https://www.youtube.com/results?search_query=reverse+tabletop+balance+challenge'},
+    ]},
+  ]},
+  '3':{label:'Nível 3 — Soberania',cor:'bloco-n3',blocos:[
+    {nome:'Aquecimento Articular',exs:[
+      {n:'Cossack Squat — mobilidade lateral',t:'2 min',l:'https://www.youtube.com/results?search_query=cossack+squat+mobility'},
+      {n:'Rolamento vertebral — solo a pé',t:'1 min',l:'https://www.youtube.com/results?search_query=spinal+rolling+floor+to+stand'},
+      {n:'Deep Squat com rotação bilateral',t:'1 min',l:'https://www.youtube.com/results?search_query=deep+squat+rotation+thoracic'},
+    ]},
+    {nome:'Domínio Motor',exs:[
+      {n:'SLS pleno — sem apoio e sem impulso',t:'4×5',l:'https://www.youtube.com/results?search_query=sitting+rising+test+longevity'},
+      {n:'Lateral Traveling Ape',t:'3×6 passadas',l:'https://www.youtube.com/results?search_query=animal+flow+lateral+ape'},
+      {n:'Rolamento lateral — retorno em pé',t:'3×4',l:'https://www.youtube.com/results?search_query=rolling+ground+to+standing+movement'},
+    ]},
+    {nome:'Estímulo Neural Rápido',exs:[
+      {n:'Saltos silenciosos unipodais',t:'4×10s',l:'https://www.youtube.com/results?search_query=silent+jumps+landing+mechanics'},
+      {n:'Underswitch em velocidade',t:'4×15s',l:'https://www.youtube.com/results?search_query=animal+flow+underswitch+speed'},
+    ]},
+    {nome:'Instabilidade Controlada',exs:[
+      {n:'Beast Shoulder Taps — 5 alt. sem rotação',t:'4×10 toques',l:'https://www.youtube.com/results?search_query=beast+shoulder+taps+no+rotation'},
+      {n:'Scorpion Reach',t:'3×5 cada',l:'https://www.youtube.com/results?search_query=animal+flow+scorpion+reach'},
+      {n:'Core Perturbation — resistência 5s',t:'4×5s',l:'https://www.youtube.com/results?search_query=core+perturbation+stability+training'},
+    ]},
+  ]},
+};
+
+function gerarPresc(){
+  const sel=document.getElementById('sel-presc').value;
+  if(!sel)return;
+  const a=alunos.find(x=>x.nome===sel);
+  if(!a)return;
+  const out=document.getElementById('presc-output');
+  if(a.nivel==='pend'){out.innerHTML='<div class="alert alert-warn">Este aluno ainda não tem nível definido. Realize a avaliação primeiro.</div>';return;}
+  const p=presc[a.nivel];
+  const nBadge={'1':'badge-n1','2':'badge-n2','3':'badge-n3'}[a.nivel];
+  out.innerHTML=`
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+        <div><div style="font-size:16px;font-weight:600;font-family:'Playfair Display',serif;">${a.nome}</div><div style="font-size:12px;color:var(--text3);margin-top:2px;">${a.idade} anos · ${a.modalidade}</div></div>
+        <span class="badge ${nBadge}">${p.label}</span>
+      </div>
+      ${a.band?`<div class="alert alert-danger" style="margin-top:12px;margin-bottom:0;">Bandeiras: ${a.band}</div>`:''}
+      ${a.obs?`<div style="font-size:12px;color:var(--text3);margin-top:8px;">${a.obs}</div>`:''}
+    </div>
+    ${p.blocos.map(b=>`
+      <div class="bloco-card ${p.cor}">
+        <div class="bloco-header">${b.nome}</div>
+        ${b.exs.map(e=>`
+          <div class="ex-row">
+            <div><div class="ex-nome">${e.n}</div><div class="ex-meta">${e.t}</div></div>
+            <a class="ex-link" href="${e.l}" target="_blank">ver vídeo ↗</a>
+          </div>`).join('')}
+      </div>`).join('')}`;
+}
+
+const bib=[
+  {nivel:'1',bloco:'Aquecimento Articular',n:'90/90 Hip Flow',d:'Rotação interna e externa de quadril',l:'https://www.youtube.com/results?search_query=90+90+hip+flow+drill'},
+  {nivel:'1',bloco:'Aquecimento Articular',n:'Cat-Cow segmentado',d:'Mobilidade vértebra por vértebra',l:'https://www.youtube.com/results?search_query=cat+cow+spinal+segmentation'},
+  {nivel:'1',bloco:'Aquecimento Articular',n:'Ankle Drive',d:'Ganho de dorsiflexão essencial',l:'https://www.youtube.com/results?search_query=ankle+dorsiflexion+mobility'},
+  {nivel:'1',bloco:'Domínio Motor',n:'Beast Hold estático',d:'Quadrupedia isométrica com apoio de joelhos',l:'https://www.youtube.com/results?search_query=animal+flow+beast+hold+beginner'},
+  {nivel:'1',bloco:'Domínio Motor',n:'Frog Stretch ativo',d:'Liberação da cadeia interna da coxa',l:'https://www.youtube.com/results?search_query=frog+stretch+active+mobility'},
+  {nivel:'1',bloco:'Domínio Motor',n:'Get Up assistido',d:'Sentar/levantar com 1 apoio de mão',l:'https://www.youtube.com/results?search_query=GMB+fitness+get+off+floor'},
+  {nivel:'1',bloco:'Estímulo Neural Rápido',n:'Flashes de agilidade',d:'Toques rápidos no solo em posições baixas',l:'https://www.youtube.com/results?search_query=agility+floor+taps'},
+  {nivel:'1',bloco:'Instabilidade Controlada',n:'Equilíbrio unipodal estático',d:'10 segundos por pé, olhos abertos',l:'https://www.youtube.com/results?search_query=single+leg+balance+seniors'},
+  {nivel:'2',bloco:'Aquecimento Articular',n:'90/90 com transição lateral',d:'Rotação bilateral com movimento contínuo',l:'https://www.youtube.com/results?search_query=90+90+hip+flow+transition+advanced'},
+  {nivel:'2',bloco:'Aquecimento Articular',n:'Deep Squat com rotação torácica',d:'Cócoras com abertura de cadeia anterior',l:'https://www.youtube.com/results?search_query=ido+portal+squat+clinic'},
+  {nivel:'2',bloco:'Domínio Motor',n:'Shin Box to Lunge',d:'Transição do solo para em pé sem apoio',l:'https://www.youtube.com/results?search_query=shin+box+to+lunge+transition'},
+  {nivel:'2',bloco:'Domínio Motor',n:'Bear Crawl',d:'Locomoção em 4 apoios — 4 passos frente/trás',l:'https://www.youtube.com/results?search_query=bear+crawl+movement+fundamentals'},
+  {nivel:'2',bloco:'Domínio Motor',n:'SLS sem apoio',d:'Sentar e levantar do solo sem mãos',l:'https://www.youtube.com/results?search_query=sit+stand+test+no+hands'},
+  {nivel:'2',bloco:'Estímulo Neural Rápido',n:'Underswitch lento',d:'Transição 4 apoios → ponte com controle',l:'https://www.youtube.com/results?search_query=animal+flow+underswitch+tutorial'},
+  {nivel:'2',bloco:'Instabilidade Controlada',n:'Equilíbrio unipodal dinâmico',d:'5 círculos no ar com o pé livre',l:'https://www.youtube.com/results?search_query=single+leg+dynamic+balance'},
+  {nivel:'2',bloco:'Instabilidade Controlada',n:'Ponte Inversa com distúrbio',d:'Equilíbrio de objeto enquanto se move',l:'https://www.youtube.com/results?search_query=reverse+tabletop+balance'},
+  {nivel:'3',bloco:'Aquecimento Articular',n:'Cossack Squat',d:'Agachamento lateral profundo',l:'https://www.youtube.com/results?search_query=cossack+squat+mobility'},
+  {nivel:'3',bloco:'Aquecimento Articular',n:'Rolamento vertebral',d:'Movimento contínuo do solo à posição de pé',l:'https://www.youtube.com/results?search_query=spinal+rolling+floor+to+stand'},
+  {nivel:'3',bloco:'Domínio Motor',n:'Lateral Traveling Ape',d:'Locomoção lateral em 4 apoios',l:'https://www.youtube.com/results?search_query=animal+flow+lateral+ape'},
+  {nivel:'3',bloco:'Domínio Motor',n:'SLS pleno',d:'Sem apoio e sem impulso — teste de longevidade',l:'https://www.youtube.com/results?search_query=sitting+rising+test+longevity'},
+  {nivel:'3',bloco:'Estímulo Neural Rápido',n:'Saltos silenciosos unipodais',d:'Absorção de impacto + equilíbrio de aterrissagem',l:'https://www.youtube.com/results?search_query=silent+jumps+landing+mechanics'},
+  {nivel:'3',bloco:'Estímulo Neural Rápido',n:'Underswitch em velocidade',d:'Troca de base rápida — Animal Flow',l:'https://www.youtube.com/results?search_query=animal+flow+underswitch+speed'},
+  {nivel:'3',bloco:'Instabilidade Controlada',n:'Scorpion Reach',d:'Rotação extrema com controle de cadeia posterior',l:'https://www.youtube.com/results?search_query=animal+flow+scorpion+reach'},
+  {nivel:'3',bloco:'Instabilidade Controlada',n:'Core Perturbation',d:'Resistência a forças externas por 5 segundos',l:'https://www.youtube.com/results?search_query=core+perturbation+stability'},
+  {nivel:'3',bloco:'Instabilidade Controlada',n:'Beast Shoulder Taps',d:'5 toques alternados sem rotação de tronco',l:'https://www.youtube.com/results?search_query=beast+shoulder+taps'},
+];
+
+function filtBib(nivel){
+  const data=nivel==='all'?bib:bib.filter(e=>e.nivel===nivel);
+  const grupos={};
+  data.forEach(e=>{const k='N'+e.nivel+' — '+e.bloco;if(!grupos[k])grupos[k]=[];grupos[k].push(e);});
+  document.getElementById('bib-output').innerHTML=Object.entries(grupos).map(([g,exs])=>`
+    <div class="bib-bloco">
+      <div class="bib-bloco-title">${g}</div>
+      ${exs.map(e=>`
+        <div class="ex-row">
+          <div><div class="ex-nome">${e.n}</div><div class="ex-meta">${e.d}</div></div>
+          <a class="ex-link" href="${e.l}" target="_blank">YouTube ↗</a>
+        </div>`).join('')}
+    </div>`).join('');
+}
+filtBib('all');
+
+function cadastrar(){
+  const nome=document.getElementById('inp-nome').value.trim();
+  const idade=document.getElementById('inp-idade').value;
+  if(!nome||!idade){alert('Preencha nome e idade.');return;}
+  alunos.push({nome,idade,modalidade:document.getElementById('inp-modal').value,nivel:document.getElementById('inp-nivel').value,obs:document.getElementById('inp-obs').value.trim(),band:document.getElementById('inp-band').value.trim()});
+  ['inp-nome','inp-idade','inp-obs','inp-band'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-nivel').value='pend';
+  renderLista();atualizarSelects();atualizarMetricas();
+}
+
+function renderLista(){
+  const el=document.getElementById('lista-alunos');
+  if(!alunos.length){el.innerHTML='<div class="empty">Nenhum aluno cadastrado ainda.</div>';return;}
+  const nLabel={'pend':'A avaliar','1':'Nível 1','2':'Nível 2','3':'Nível 3'};
+  const nBadge={'pend':'badge-pend','1':'badge-n1','2':'badge-n2','3':'badge-n3'};
+  el.innerHTML=alunos.map((a,i)=>`
+    <div class="aluno-row">
+      <div style="flex:1;min-width:0;">
+        <div class="aluno-nome">${a.nome}</div>
+        <div class="aluno-meta">${a.idade} anos · ${a.modalidade}${a.obs?' · '+a.obs.substring(0,40)+(a.obs.length>40?'...':''):''}</div>
+        ${a.band?`<div class="aluno-meta" style="color:var(--danger);">⚠ ${a.band}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px;">
+        <span class="badge ${nBadge[a.nivel]}">${nLabel[a.nivel]}</span>
+        <button class="btn btn-sm" onclick="remover(${i})">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function remover(i){alunos.splice(i,1);renderLista();atualizarSelects();atualizarMetricas();}
+
+function atualizarSelects(){
+  ['sel-aval','sel-presc'].forEach(id=>{
+    const s=document.getElementById(id);const v=s.value;
+    s.innerHTML='<option value="">— selecionar —</option>'+alunos.map(a=>`<option value="${a.nome}"${a.nome===v?' selected':''}>${a.nome} · ${a.nivel==='pend'?'A avaliar':'N'+a.nivel}</option>`).join('');
+  });
+}
+
+function onSelAval(){
+  const sel=document.getElementById('sel-aval').value;
+  const info=document.getElementById('aval-info');
+  if(!sel){info.style.display='none';return;}
+  const a=alunos.find(x=>x.nome===sel);
+  info.style.display='block';
+  info.innerHTML=`${a.idade} anos · ${a.modalidade}${a.band?' · <span style="color:var(--danger);">⚠ '+a.band+'</span>':''}`;
+}
+
+function atualizarMetricas(){
+  document.getElementById('m-total').textContent=alunos.length;
+  document.getElementById('m-n1').textContent=alunos.filter(a=>a.nivel==='1').length;
+  document.getElementById('m-n2').textContent=alunos.filter(a=>a.nivel==='2').length;
+  document.getElementById('m-n3').textContent=alunos.filter(a=>a.nivel==='3').length;
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  closeSidebar();
+}
+
+function navTo(id){
+  const tabs=['visao-geral','alunos','avaliacao','prescricao','biblioteca'];
+  const idx=tabs.indexOf(id);
+  showTab(id,document.querySelectorAll('.nav-item')[idx]);
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+</script>
+</body>
+</html>
